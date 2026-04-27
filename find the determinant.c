@@ -3,18 +3,20 @@
 #include <math.h>
 
 double **create(long long n) {
-    long long i, j;
+    long long i, j; int f=0;
     double **matrix = malloc(n*sizeof(double*));
     if (matrix==NULL) {
         return NULL; }
-    for (i=0; i<n; i++) {
+    for (i=0; i<n && !f; i++) {
         matrix[i] = malloc(n*sizeof(double));
-        if (matrix[i]==NULL) {
+        f = matrix[i]==NULL;
+        if (f) {
             free(matrix);
-            return NULL;
         }
     }
-    return matrix;
+    if (!f) {
+        return matrix; }
+    else { return NULL; }
 }
 
 void free_matrix(long long n, double **matrix) {
@@ -60,7 +62,7 @@ void permutation(long long n, double *line1, double *line2) {
 double Gauss_method(long long n, double **matrix) {
     double det = 1, number;
     long long i, j, k, leading_el;
-    for (i=0; i<n; i++) {
+    for (i=0; i<n && det!=0; i++) {
         leading_el = i;
         for (j=i+1; j<n; j++) {
             if (fabs(matrix[leading_el][i]) < fabs(matrix[j][i])) {
@@ -68,8 +70,9 @@ double Gauss_method(long long n, double **matrix) {
             }
         }
         if (matrix[leading_el][i]==0) {
-            return 0;
+            det = 0;
         }
+        if (det!=0) {
         if (leading_el!=i) {
             permutation(n, matrix[leading_el], matrix[i]);
             det *= -1;
@@ -79,8 +82,9 @@ double Gauss_method(long long n, double **matrix) {
             for (k=i; k<n; k++) {
                 matrix[j][k] += matrix[i][k]*number;
             }
-        }
+        } }
     }
+    if (det==0) { return 0; }
     for (i=0; i<n; i++) {
         det *= matrix[i][i];
     }
